@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rental For You - Admin v6</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{--cream:#FAF7F2;--cream-dark:#F0EBE3;--brown:#5D4E37;--brown-light:#8B7355;--gold:#C9A962;--white:#FFFFFF;--green:#4CAF50;--red:#f44336;--blue:#2196F3;--orange:#FF9800;--shadow:rgba(93,78,55,0.1)}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Prompt',sans-serif;background:var(--cream);min-height:100vh;color:var(--brown)}
+        .header{background:var(--brown);color:var(--white);padding:15px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+        .header h1{font-size:1.2rem}
+        .header-btns{display:flex;gap:10px}
+        .header-btn{background:rgba(255,255,255,0.2);color:var(--white);border:none;padding:8px 15px;border-radius:20px;cursor:pointer;font-family:'Prompt',sans-serif;font-size:0.85rem}
+        .header-btn:hover{background:rgba(255,255,255,0.3)}
+        .tabs{display:flex;background:var(--white);border-bottom:2px solid var(--cream-dark);overflow-x:auto}
+        .tab{padding:15px 25px;border:none;background:none;cursor:pointer;font-family:'Prompt',sans-serif;font-size:0.95rem;color:var(--brown-light);border-bottom:3px solid transparent;white-space:nowrap}
+        .tab:hover{color:var(--brown)}
+        .tab.active{color:var(--brown);border-bottom-color:var(--gold);font-weight:600}
+        .container{max-width:1200px;margin:0 auto;padding:20px}
+        .page{display:none}.page.active{display:block}
+        .card{background:var(--white);border-radius:16px;padding:25px;margin-bottom:20px;box-shadow:0 4px 20px var(--shadow)}
+        .card-title{font-size:1.1rem;font-weight:600;margin-bottom:20px;color:var(--brown)}
+        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin-bottom:20px}
+        .stat-card{background:var(--white);border-radius:12px;padding:20px;box-shadow:0 4px 15px var(--shadow);text-align:center}
+        .stat-card.warning{border-left:4px solid var(--orange)}
+        .stat-card.danger{border-left:4px solid var(--red)}
+        .stat-card.success{border-left:4px solid var(--green)}
+        .stat-card.info{border-left:4px solid var(--blue)}
+        .stat-number{font-size:2rem;font-weight:700;color:var(--brown)}
+        .stat-label{font-size:0.85rem;color:var(--brown-light)}
+        .alert{padding:15px 20px;border-radius:10px;margin-bottom:15px}
+        .alert.warning{background:#FFF3E0;border:1px solid var(--orange);color:#E65100}
+        .alert.danger{background:#FFEBEE;border:1px solid var(--red);color:#C62828}
+        .alert.success{background:#E8F5E9;border:1px solid var(--green);color:#2E7D32}
+        .table-wrapper{overflow-x:auto}
+        table{width:100%;border-collapse:collapse;font-size:0.9rem}
+        th,td{padding:12px 15px;text-align:left;border-bottom:1px solid var(--cream-dark)}
+        th{background:var(--cream);font-weight:600}
+        tr:hover{background:var(--cream)}
+        .status-badge{padding:5px 12px;border-radius:15px;font-size:0.8rem;font-weight:500}
+        .status-pending{background:#FFF3E0;color:#E65100}
+        .status-confirmed{background:#E3F2FD;color:#1565C0}
+        .status-shipped{background:#F3E5F5;color:#7B1FA2}
+        .status-returned{background:#E8F5E9;color:#2E7D32}
+        .status-cancelled{background:#FFEBEE;color:#C62828}
+        .action-btn{padding:5px 10px;border:none;border-radius:5px;cursor:pointer;font-size:0.8rem}
+        .action-btn.edit{background:var(--orange);color:white}
+        .form-group{margin-bottom:20px}
+        .form-label{display:block;font-size:0.9rem;font-weight:500;margin-bottom:8px;color:var(--brown)}
+        .form-input,.form-select,.form-textarea{width:100%;padding:12px 15px;border:2px solid var(--cream-dark);border-radius:10px;font-family:'Prompt',sans-serif;font-size:1rem;color:var(--brown)}
+        .form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--gold)}
+        .form-textarea{min-height:80px;resize:vertical}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+        .form-row-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:15px}
+        .dress-selector{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:15px}
+        .dress-chip{padding:10px 15px;background:var(--cream);border:2px solid var(--cream-dark);border-radius:25px;cursor:pointer;font-size:0.9rem}
+        .dress-chip:hover{border-color:var(--gold)}
+        .dress-chip.selected{background:var(--gold);border-color:var(--gold);color:var(--white)}
+        .dress-chip .price{font-size:0.8rem;opacity:0.8;margin-left:5px}
+        .selected-item{display:flex;justify-content:space-between;align-items:center;padding:12px 15px;background:var(--cream);border-radius:10px;margin-bottom:10px}
+        .selected-item .info{flex:1}
+        .selected-item .name{font-weight:600}
+        .selected-item .detail{font-size:0.85rem;color:var(--brown-light)}
+        .selected-item .remove{background:var(--red);color:var(--white);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1rem}
+        .days-selector{display:flex;gap:10px}
+        .day-btn{flex:1;padding:15px;border:2px solid var(--cream-dark);background:var(--white);border-radius:10px;cursor:pointer;text-align:center}
+        .day-btn:hover{border-color:var(--gold)}
+        .day-btn.active{border-color:var(--gold);background:var(--gold);color:var(--white)}
+        .checkbox-group{display:flex;align-items:center;gap:10px;padding:15px;background:var(--cream);border-radius:10px;margin-bottom:15px}
+        .checkbox-group input{width:20px;height:20px;cursor:pointer;accent-color:var(--gold)}
+        .price-summary{background:linear-gradient(135deg,var(--cream) 0%,var(--cream-dark) 100%);border-radius:16px;padding:25px}
+        .price-row{display:flex;justify-content:space-between;padding:10px 0;font-size:0.95rem}
+        .price-row.discount{color:var(--green)}
+        .price-row.subtotal{border-top:1px dashed var(--brown-light);margin-top:10px;padding-top:15px;font-weight:600}
+        .price-row.deposit{color:var(--brown-light)}
+        .price-row.total{background:var(--brown);color:var(--white);margin:15px -25px -25px;padding:20px 25px;border-radius:0 0 16px 16px;font-size:1.2rem;font-weight:600}
+        .btn{padding:15px 25px;border:none;border-radius:12px;font-family:'Prompt',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+        .btn-primary{background:linear-gradient(135deg,var(--brown) 0%,var(--brown-light) 100%);color:var(--white)}
+        .btn-success{background:var(--green);color:var(--white)}
+        .btn-warning{background:var(--orange);color:var(--white)}
+        .btn-outline{background:var(--white);color:var(--brown);border:2px solid var(--brown)}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 5px 20px var(--shadow)}
+        .btn-block{width:100%;justify-content:center;margin-top:10px}
+        .note{background:#FFF3E0;border:1px solid #FFB74D;border-radius:10px;padding:15px;margin-top:15px;font-size:0.9rem;color:#E65100}
+        .deposit-note{background:#E3F2FD;border:1px solid #64B5F6;border-radius:10px;padding:15px;margin-top:15px;font-size:0.9rem;color:#1565C0}
+        .config-block{background:#FFF8E1;border:2px dashed var(--gold);border-radius:12px;padding:20px;margin-bottom:20px}
+        .config-block h3{color:var(--brown);margin-bottom:15px;font-size:1rem}
+        
+        /* Custom summary input styles */
+        .custom-summary-row{display:flex;gap:10px;margin-bottom:10px;align-items:center}
+        .custom-summary-row input{flex:1;padding:10px;border:2px solid var(--cream-dark);border-radius:8px;font-family:'Prompt',sans-serif}
+        .custom-summary-row input:focus{outline:none;border-color:var(--gold)}
+        .custom-summary-row .label-input{flex:2}
+        .custom-summary-row .value-input{flex:1;text-align:right}
+        
+        /* Print styles */
+        .print-area{display:none}
+        @media print{
+            body *{visibility:hidden}
+            .print-area,.print-area *{visibility:visible}
+            .print-area{display:block;position:absolute;left:0;top:0;width:100%}
+            @page{size:A4 landscape;margin:5mm}
+        }
+        
+        /* Print Label - ใบปะหน้าแบบใหม่ */
+        .print-page-landscape{
+            width:297mm;
+            height:210mm;
+            padding:8mm;
+            background:white;
+            font-family:'Prompt',sans-serif;
+            display:flex;
+            gap:5mm;
+        }
+        .label-half{
+            flex:1;
+            border:3px solid #333;
+            padding:8mm;
+            position:relative;
+            display:flex;
+            flex-direction:column;
+        }
+        .label-half.return{border-style:dashed;border-color:#C62828}
+        
+        /* Header with type badge */
+        .label-header{
+            text-align:center;
+            padding-bottom:5mm;
+            border-bottom:3px solid #333;
+            margin-bottom:5mm;
+        }
+        .label-header.return{border-color:#C62828}
+        .label-type-badge{
+            display:inline-block;
+            padding:8px 30px;
+            border-radius:25px;
+            font-weight:700;
+            font-size:16pt;
+        }
+        .label-type-badge.send{background:#E3F2FD;color:#1565C0;border:2px solid #1565C0}
+        .label-type-badge.return{background:#FFEBEE;color:#C62828;border:2px solid #C62828}
+        
+        /* Main Address Section - BIG and CLEAR */
+        .main-address-section{
+            display:flex;
+            gap:5mm;
+            margin-bottom:5mm;
+        }
+        .address-big-box{
+            flex:1;
+            padding:10px 15px;
+            border-radius:10px;
+            min-height:100px;
+        }
+        .address-big-box.sender{
+            background:#f5f5f5;
+            border:2px solid #ccc;
+        }
+        .address-big-box.receiver{
+            background:#E3F2FD;
+            border:3px solid #1565C0;
+        }
+        .address-big-box.receiver.return-receiver{
+            background:#FFEBEE;
+            border:3px solid #C62828;
+        }
+        .address-label{
+            font-size:11pt;
+            color:#666;
+            margin-bottom:5px;
+            font-weight:500;
+        }
+        .address-name{
+            font-size:20pt;
+            font-weight:700;
+            color:#333;
+            margin-bottom:5px;
+        }
+        .address-phone{
+            font-size:18pt;
+            font-weight:600;
+            color:#1565C0;
+            margin-bottom:8px;
+        }
+        .address-big-box.return-receiver .address-phone{color:#C62828}
+        .address-detail{
+            font-size:12pt;
+            line-height:1.4;
+            color:#333;
+            white-space:pre-line;
+        }
+        
+        /* Info Section */
+        .label-info-section{
+            background:#f9f9f9;
+            border-radius:10px;
+            padding:10px 15px;
+            margin-bottom:5mm;
+        }
+        .label-info-row{
+            display:flex;
+            justify-content:space-between;
+            padding:5px 0;
+            font-size:12pt;
+            border-bottom:1px dashed #ddd;
+        }
+        .label-info-row:last-child{border-bottom:none}
+        .label-info-row strong{color:#666}
+        .label-info-row span{color:#333;font-weight:600}
+        .label-info-row.highlight{
+            background:#FFF3E0;
+            margin:5px -15px;
+            padding:10px 15px;
+            border-radius:5px;
+        }
+        .label-info-row.highlight span{color:#E65100;font-weight:700;font-size:14pt}
+        .label-info-row.danger{
+            background:#FFEBEE;
+            margin:5px -15px;
+            padding:10px 15px;
+            border-radius:5px;
+        }
+        .label-info-row.danger span{color:#C62828;font-weight:700;font-size:14pt}
+        
+        /* Brand footer */
+        .brand-footer{
+            text-align:center;
+            padding:10px;
+            margin-top:auto;
+        }
+        .brand-logo{font-size:14pt;font-weight:700;color:#5D4E37}
+        .brand-logo span{color:#C9A962}
+        .brand-contact{font-size:10pt;color:#888;margin-top:5px}
+        
+        /* Cut indicator */
+        .cut-indicator{
+            position:absolute;
+            top:50%;
+            right:-18mm;
+            transform:translateY(-50%) rotate(90deg);
+            font-size:10pt;
+            color:#999;
+            white-space:nowrap;
+            letter-spacing:2px;
+        }
+        
+        .copy-success{position:fixed;top:20px;right:20px;background:var(--green);color:var(--white);padding:15px 25px;border-radius:10px;z-index:1000;display:none}
+        @media(max-width:768px){
+            .form-row{grid-template-columns:1fr}
+            .form-row-4{grid-template-columns:1fr 1fr}
+            .stats-grid{grid-template-columns:1fr 1fr}
+            .days-selector{flex-wrap:wrap}
+            .day-btn{min-width:calc(33% - 10px)}
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Rental For You - Admin v6</h1>
+        <div class="header-btns">
+            <button class="header-btn" onclick="refreshData()">รีเฟรช</button>
+            <button class="header-btn" onclick="syncDressData()">🔄 ดึงข้อมูลชุดจาก Sheet</button>
+        </div>
+    </header>
+
+    <div class="tabs">
+        <button class="tab active" onclick="showTab('dashboard',this)">Dashboard</button>
+        <button class="tab" onclick="showTab('newOrder',this)">สร้างออเดอร์</button>
+        <button class="tab" onclick="showTab('orders',this)">รายการออเดอร์</button>
+        <button class="tab" onclick="showTab('calendar',this)">📅 จัดการปฏิทิน</button>
+        <button class="tab" onclick="showTab('shipping',this)">ตารางส่งชุด</button>
+        <button class="tab" onclick="showTab('settings',this)">ตั้งค่า</button>
+    </div>
+
+    <div class="container">
+        <!-- Dashboard Page -->
+        <div class="page active" id="dashboardPage">
+            <div class="stats-grid">
+                <div class="stat-card warning"><div class="stat-number" id="statPending">0</div><div class="stat-label">รอชำระเงิน</div></div>
+                <div class="stat-card info"><div class="stat-number" id="statConfirmed">0</div><div class="stat-label">ยืนยันแล้ว</div></div>
+                <div class="stat-card success"><div class="stat-number" id="statShipped">0</div><div class="stat-label">ส่งชุดแล้ว</div></div>
+                <div class="stat-card danger"><div class="stat-number" id="statReturn">0</div><div class="stat-label">รอส่งคืน</div></div>
+            </div>
+            <div class="card">
+                <div class="card-title">ต้องส่งชุดวันนี้</div>
+                <div id="todayShipments"><div class="alert success">ไม่มีชุดที่ต้องส่งวันนี้</div></div>
+            </div>
+            <div class="card">
+                <div class="card-title">แจ้งเตือนส่งคืน</div>
+                <div id="returnAlerts"><div class="alert success">ไม่มีชุดที่ใกล้ถึงวันส่งคืน</div></div>
+            </div>
+            <div class="card">
+                <div class="card-title">ออเดอร์ล่าสุด</div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>เลขที่</th><th>ลูกค้า</th><th>ชุด</th><th>วันใช้งาน</th><th>ยอดเงิน</th><th>สถานะ</th></tr></thead>
+                        <tbody id="recentOrders"><tr><td colspan="6" style="text-align:center">กำลังโหลด...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Order Page -->
+        <div class="page" id="newOrderPage">
+            <div class="card">
+                <div class="card-title">เลือกชุดที่จะเช่า</div>
+                <div class="dress-selector" id="dressSelector"></div>
+                <div id="selectedList"></div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">จำนวนวันเช่า</div>
+                <div class="days-selector">
+                    <button class="day-btn" onclick="selectDays(1)">1 วัน</button>
+                    <button class="day-btn active" onclick="selectDays(3)">3 วัน</button>
+                    <button class="day-btn" onclick="selectDays(5)">5 วัน</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">ส่วนลด</div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="oldCustomer" onchange="calculate()">
+                    <label for="oldCustomer">ลูกค้าเก่า (ลด 5%)</label>
+                </div>
+                <div class="note">เช่า 3 ชุดขึ้นไป ลด 10% | เช่า 2 ชุดขึ้นไป ส่งฟรี</div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">ข้อมูลลูกค้า</div>
+                <div class="form-group">
+                    <label class="form-label">ชื่อลูกค้า</label>
+                    <input type="text" class="form-input" id="customerName" placeholder="ชื่อ-นามสกุล">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">เบอร์โทร</label>
+                        <input type="tel" class="form-input" id="customerPhone" placeholder="0xx-xxx-xxxx">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Line ID</label>
+                        <input type="text" class="form-input" id="customerLine" placeholder="Line ID">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">ที่อยู่จัดส่ง</label>
+                    <textarea class="form-textarea" id="customerAddress" placeholder="บ้านเลขที่ ซอย ถนน..."></textarea>
+                </div>
+            </div>
+            
+            <!-- กำหนดวันเช่า - แก้ไขให้แอดมินกรอกเองทุกช่อง -->
+            <div class="card">
+                <div class="card-title">กำหนดวันเช่า (กรอกเองทั้งหมด)</div>
+                <div class="form-row-4">
+                    <div class="form-group">
+                        <label class="form-label">1. วันที่เริ่มใช้ชุด</label>
+                        <input type="date" class="form-input" id="startDate">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">2. วันที่ส่งชุด</label>
+                        <input type="date" class="form-input" id="pickupDate">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">3. วันสุดท้ายที่ใช้</label>
+                        <input type="date" class="form-input" id="endDate">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">4. วันที่ลูกค้าส่งคืน</label>
+                        <input type="date" class="form-input" id="returnDate">
+                    </div>
+                </div>
+                <div class="note">💡 กำหนดวันที่ทุกช่องเอง เพื่อความยืดหยุ่นในการจัดการ</div>
+            </div>
+            
+            <!-- สรุปค่าใช้จ่าย - มี 5 ช่องให้เพิ่มเอง -->
+            <div class="card">
+                <div class="card-title">สรุปค่าใช้จ่าย</div>
+                <div class="price-summary" id="priceSummary">
+                    <div class="price-row"><span>กรุณาเลือกชุด</span><span>-</span></div>
+                </div>
+                
+                <div style="margin-top:20px;padding:15px;background:#FFF8E1;border-radius:10px;border:2px dashed var(--gold)">
+                    <div style="font-weight:600;margin-bottom:15px;color:var(--brown)">➕ เพิ่มรายการเอง (สูงสุด 5 รายการ)</div>
+                    <div id="customSummaryInputs">
+                        <div class="custom-summary-row">
+                            <input type="text" class="label-input" id="customLabel1" placeholder="ชื่อรายการ (เช่น ส่วนลดพิเศษ)" onchange="calculate()">
+                            <input type="number" class="value-input" id="customValue1" placeholder="จำนวนเงิน" onchange="calculate()">
+                        </div>
+                        <div class="custom-summary-row">
+                            <input type="text" class="label-input" id="customLabel2" placeholder="ชื่อรายการ" onchange="calculate()">
+                            <input type="number" class="value-input" id="customValue2" placeholder="จำนวนเงิน" onchange="calculate()">
+                        </div>
+                        <div class="custom-summary-row">
+                            <input type="text" class="label-input" id="customLabel3" placeholder="ชื่อรายการ" onchange="calculate()">
+                            <input type="number" class="value-input" id="customValue3" placeholder="จำนวนเงิน" onchange="calculate()">
+                        </div>
+                        <div class="custom-summary-row">
+                            <input type="text" class="label-input" id="customLabel4" placeholder="ชื่อรายการ" onchange="calculate()">
+                            <input type="number" class="value-input" id="customValue4" placeholder="จำนวนเงิน" onchange="calculate()">
+                        </div>
+                        <div class="custom-summary-row">
+                            <input type="text" class="label-input" id="customLabel5" placeholder="ชื่อรายการ" onchange="calculate()">
+                            <input type="number" class="value-input" id="customValue5" placeholder="จำนวนเงิน" onchange="calculate()">
+                        </div>
+                    </div>
+                    <div style="font-size:0.85rem;color:var(--brown-light);margin-top:10px">
+                        💡 ใส่ตัวเลขติดลบเพื่อหักส่วนลด (เช่น -50)<br>
+                        💡 ใส่ตัวเลขบวกเพื่อเพิ่มค่าใช้จ่าย (เช่น 100)
+                    </div>
+                </div>
+                
+                <div class="deposit-note">ค่ามัดจำ = ราคา 3 วันของทุกชุดรวมกัน</div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">ดำเนินการ</div>
+                <button class="btn btn-primary btn-block" onclick="saveOrder()">บันทึกออเดอร์ (Google Sheet)</button>
+                <button class="btn btn-success btn-block" onclick="generateSummary()">สร้างสรุปส่งลูกค้า</button>
+                <button class="btn btn-outline btn-block" onclick="copySummary()">Copy ข้อความ</button>
+                <div id="orderSummaryBox" style="display:none;margin-top:20px;background:#1a1a2e;color:#0f0;padding:20px;border-radius:12px;font-family:monospace;font-size:0.85rem;white-space:pre-wrap;max-height:400px;overflow-y:auto"></div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">ปริ้นใบปะหน้า (A4 แนวนอน)</div>
+                <button class="btn btn-warning btn-block" onclick="printLabelLandscape()">🖨️ ปริ้นใบปะหน้า (แนวนอน ซ้าย-ขวา)</button>
+                <div class="note" style="margin-top:15px">
+                    ปริ้น 1 แผ่น A4 แนวนอน<br>
+                    • ครึ่งซ้าย = ส่งให้ลูกค้า (ข้อมูลผู้ส่ง-ผู้รับชัดเจน)<br>
+                    • ครึ่งขวา = ลูกค้าส่งกลับ (แปะกล่องส่งคืน)
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Page -->
+        <div class="page" id="ordersPage">
+            <div class="card">
+                <div class="card-title">รายการออเดอร์ทั้งหมด</div>
+                <div class="form-row" style="margin-bottom:20px">
+                    <div class="form-group" style="margin-bottom:0">
+                        <select class="form-select" id="filterStatus" onchange="filterOrders()">
+                            <option value="">ทั้งหมด</option>
+                            <option value="รอชำระ">รอชำระ</option>
+                            <option value="ยืนยันแล้ว">ยืนยันแล้ว</option>
+                            <option value="ส่งชุดแล้ว">ส่งชุดแล้ว</option>
+                            <option value="คืนชุดแล้ว">คืนชุดแล้ว</option>
+                            <option value="ยกเลิก">ยกเลิก</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0">
+                        <input type="text" class="form-input" id="searchOrder" placeholder="ค้นหา..." oninput="filterOrders()">
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>เลขที่</th>
+                                <th>ลูกค้า</th>
+                                <th>ชุด</th>
+                                <th>วันส่ง</th>
+                                <th>วันใช้</th>
+                                <th>วันคืน</th>
+                                <th>ยอด</th>
+                                <th>สถานะ</th>
+                                <th>จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="allOrders">
+                            <tr><td colspan="9" style="text-align:center">กำลังโหลด...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar Page -->
+        <div class="page" id="calendarPage">
+            <div class="card">
+                <div class="card-title">📅 จัดการปฏิทินชุดไม่ว่าง</div>
+                
+                <div class="alert warning" style="margin-bottom:20px">
+                    <strong>💡 หมายเหตุ:</strong> ปฏิทินนี้จะแสดงให้ลูกค้าเห็นว่าชุดไหนว่าง/ไม่ว่าง<br>
+                    • <strong>ประเภท "ออเดอร์"</strong> = สร้างอัตโนมัติจากการจอง (รวมวันซัก 3 วัน)<br>
+                    • <strong>ประเภทอื่นๆ</strong> = บล็อกเอง (เช่น ซ่อมชุด, ซักแห้ง, จองส่วนตัว)
+                </div>
+                
+                <div style="background:var(--cream);padding:20px;border-radius:12px;margin-bottom:20px">
+                    <h3 style="margin-bottom:15px;color:var(--brown)">➕ เพิ่มการบล็อกใหม่</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">รหัสชุด</label>
+                            <select class="form-select" id="blockDressCode">
+                                <option value="">เลือกชุด...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">ประเภท</label>
+                            <select class="form-select" id="blockType">
+                                <option value="กำหนดเอง">กำหนดเอง</option>
+                                <option value="ซ่อมชุด">ซ่อมชุด</option>
+                                <option value="ซักแห้ง">ซักแห้ง</option>
+                                <option value="จองส่วนตัว">จองส่วนตัว</option>
+                                <option value="ถ่ายรูปโฆษณา">ถ่ายรูปโฆษณา</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">วันเริ่มบล็อก</label>
+                            <input type="date" class="form-input" id="blockStartDate">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">วันสิ้นสุดบล็อก</label>
+                            <input type="date" class="form-input" id="blockEndDate">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="addNewBlock()">➕ เพิ่มการบล็อก</button>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Block ID</th>
+                                <th>รหัสชุด</th>
+                                <th>วันเริ่มบล็อก</th>
+                                <th>วันสิ้นสุดบล็อก</th>
+                                <th>ระยะเวลา</th>
+                                <th>ประเภท</th>
+                                <th>จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="calendarBlocksList">
+                            <tr><td colspan="7" style="text-align:center;padding:40px">กำลังโหลด...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shipping Page -->
+        <div class="page" id="shippingPage">
+            <div class="card">
+                <div class="card-title">📦 ตารางส่งชุด (7 วันข้างหน้า)</div>
+                <div id="shippingSchedule"></div>
+            </div>
+            <div class="card">
+                <div class="card-title">📥 ตารางรับคืน (7 วันข้างหน้า)</div>
+                <div id="returnSchedule"></div>
+            </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div class="page" id="settingsPage">
+            <div class="card config-block">
+                <h3>ข้อมูลร้าน (สำหรับใบปะหน้า)</h3>
+                <div class="form-group">
+                    <label class="form-label">ชื่อร้าน/ผู้รับ</label>
+                    <input type="text" class="form-input" id="shopName" value="Rental For You">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">เบอร์โทรร้าน</label>
+                    <input type="text" class="form-input" id="shopPhone" value="xxx-xxx-xxxx">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">ที่อยู่ร้าน</label>
+                    <textarea class="form-textarea" id="shopAddress">กรุณากรอกที่อยู่ร้าน</textarea>
+                </div>
+                <button class="btn btn-primary" onclick="saveShopInfo()">บันทึกข้อมูลร้าน</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="print-area" id="printArea"></div>
+    <div id="copyNotification" class="copy-success">Copy สำเร็จ!</div>
+
+    <script>
+        // ⚠️ สำคัญ! เปลี่ยน API_URL เป็น URL ของคุณ
+        const API_URL = 'https://script.google.com/macros/s/AKfycbzpi3AUgVDIgSdm2SHYhqbdI819Xq9DWkFAfvXLe3c8U-H-tyH-ZDSp19nMu6D-hCxy/exec';
+        
+        // ข้อมูลชุด - สามารถดึงจาก Google Sheet ได้
+        let dressData = [
+            { code: 'B001', name: 'SO.MUTE', price1: 130, price3: 180, price5: 230 },
+            { code: 'B002', name: 'MIFFY DRESS', price1: 80, price3: 110, price5: 140 },
+            { code: 'B003', name: 'JOOBS STUDIO', price1: 170, price3: 230, price5: 300 },
+            { code: 'B004', name: 'FALLIN ROSE', price1: 150, price3: 200, price5: 270 },
+            { code: 'B005', name: 'LOOKBOOK', price1: 190, price3: 250, price5: 330 },
+            { code: 'B006', name: 'NARYSTUDIO', price1: 110, price3: 150, price5: 200 },
+            { code: 'B007', name: 'FALLIN ROSE', price1: 130, price3: 180, price5: 230 },
+            { code: 'B008', name: 'FALLIN ROSE', price1: 110, price3: 150, price5: 200 },
+            { code: 'B009', name: 'FALLIN ROSE', price1: 130, price3: 180, price5: 230 },
+            { code: 'B010', name: 'FALLIN ROSE', price1: 120, price3: 160, price5: 210 },
+            { code: 'B011', name: 'IMILY.STYLE', price1: 160, price3: 220, price5: 290 },
+            { code: 'B012', name: 'EVERYMAY', price1: 110, price3: 150, price5: 200 },
+            { code: 'B013', name: 'LOOKBOOK', price1: 270, price3: 370, price5: 490 },
+            { code: 'B014', name: 'FALLIN ROSE', price1: 120, price3: 160, price5: 210 },
+            { code: 'B015', name: 'FEELFREE.BKK', price1: 170, price3: 230, price5: 300 },
+            { code: 'B016', name: 'NARYSTUDION', price1: 100, price3: 130, price5: 170 },
+            { code: 'B017', name: 'NARYSTUDION', price1: 100, price3: 130, price5: 170 },
+        ];
+        
+        let selectedDresses = [];
+        let selectedDays = 3;
+        let allOrdersData = [];
+        let allBlocks = [];
+
+        // ==================== INITIALIZATION ====================
+        function initAdmin() {
+            initDressSelector();
+            initCalendarPage();
+            loadShopInfo();
+            loadOrders();
+            loadCalendarBlocks();
+            syncDressData(); // ดึงข้อมูลชุดจาก Sheet
+        }
+
+        // ดึงข้อมูลชุดจาก Google Sheet
+        async function syncDressData() {
+            try {
+                const response = await fetch(API_URL + '?action=getDresses');
+                const result = await response.json();
+                if (result.success && result.dresses && result.dresses.length > 0) {
+                    dressData = result.dresses;
+                    initDressSelector();
+                    initCalendarPage();
+                    showNotification('✅ อัพเดทข้อมูลชุดจาก Sheet สำเร็จ!');
+                }
+            } catch (error) {
+                console.error('Error syncing dress data:', error);
+                // ใช้ข้อมูลเดิมถ้าดึงไม่ได้
+            }
+        }
+
+        function initDressSelector() {
+            document.getElementById('dressSelector').innerHTML = dressData.map(d => 
+                '<div class="dress-chip" onclick="toggleDress(\'' + d.code + '\')" id="chip-' + d.code + '">' + 
+                d.code + '<span class="price">' + d.price3 + '฿</span></div>'
+            ).join('');
+        }
+
+        function initCalendarPage() {
+            const select = document.getElementById('blockDressCode');
+            select.innerHTML = '<option value="">เลือกชุด...</option>' + dressData.map(d => 
+                '<option value="' + d.code + '">' + d.code + ' - ' + d.name + '</option>'
+            ).join('');
+        }
+
+        // ==================== TAB NAVIGATION ====================
+        function showTab(tabId, btn) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(tabId + 'Page').classList.add('active');
+        }
+
+        // ==================== DRESS SELECTION ====================
+        function toggleDress(code) {
+            const index = selectedDresses.indexOf(code);
+            if (index > -1) {
+                selectedDresses.splice(index, 1);
+            } else {
+                selectedDresses.push(code);
+            }
+            updateUI();
+        }
+
+        function removeDress(code) {
+            const index = selectedDresses.indexOf(code);
+            if (index > -1) selectedDresses.splice(index, 1);
+            updateUI();
+        }
+
+        function selectDays(days) {
+            selectedDays = days;
+            document.querySelectorAll('.day-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.day-btn').classList.add('active');
+            updateUI();
+        }
+
+        function updateUI() {
+            dressData.forEach(d => {
+                const chip = document.getElementById('chip-' + d.code);
+                if (chip) {
+                    chip.classList.toggle('selected', selectedDresses.includes(d.code));
+                }
+            });
+            
+            const listContainer = document.getElementById('selectedList');
+            if (selectedDresses.length === 0) {
+                listContainer.innerHTML = '';
+            } else {
+                listContainer.innerHTML = selectedDresses.map(code => {
+                    const dress = dressData.find(d => d.code === code);
+                    if (!dress) return '';
+                    const price = selectedDays === 1 ? dress.price1 : selectedDays === 3 ? dress.price3 : dress.price5;
+                    return '<div class="selected-item">' +
+                        '<div class="info">' +
+                        '<div class="name">' + dress.code + ' - ' + dress.name + '</div>' +
+                        '<div class="detail">' + selectedDays + ' วัน = ' + price + ' บาท | มัดจำ ' + dress.price3 + ' บาท</div>' +
+                        '</div>' +
+                        '<button class="remove" onclick="removeDress(\'' + code + '\')">&times;</button>' +
+                        '</div>';
+                }).join('');
+            }
+            calculate();
+        }
+
+        // ==================== CALCULATION ====================
+        function calculate() {
+            const isOldCustomer = document.getElementById('oldCustomer').checked;
+            const count = selectedDresses.length;
+            
+            if (count === 0) {
+                document.getElementById('priceSummary').innerHTML = '<div class="price-row"><span>กรุณาเลือกชุด</span><span>-</span></div>';
+                return;
+            }
+            
+            let subtotal = 0;
+            let depositTotal = 0;
+            let itemsHtml = '';
+            
+            selectedDresses.forEach(code => {
+                const dress = dressData.find(d => d.code === code);
+                if (!dress) return;
+                const price = selectedDays === 1 ? dress.price1 : selectedDays === 3 ? dress.price3 : dress.price5;
+                subtotal += price;
+                depositTotal += dress.price3;
+                itemsHtml += '<div class="price-row"><span>' + dress.code + ' (' + selectedDays + ' วัน)</span><span>' + price + ' บาท</span></div>';
+            });
+            
+            let discount = 0;
+            let discountHtml = '';
+            
+            if (count >= 3) {
+                const d10 = Math.round(subtotal * 0.10);
+                discount += d10;
+                discountHtml += '<div class="price-row discount"><span>ลด 10% (3 ชุด)</span><span>-' + d10 + ' บาท</span></div>';
+            }
+            if (isOldCustomer) {
+                const d5 = Math.round(subtotal * 0.05);
+                discount += d5;
+                discountHtml += '<div class="price-row discount"><span>ลดลูกค้าเก่า 5%</span><span>-' + d5 + ' บาท</span></div>';
+            }
+            
+            const shipping = count >= 2 ? 0 : 35;
+            
+            // รายการที่แอดมินเพิ่มเอง (5 ช่อง)
+            let customHtml = '';
+            let customTotal = 0;
+            for (let i = 1; i <= 5; i++) {
+                const label = document.getElementById('customLabel' + i).value.trim();
+                const value = parseFloat(document.getElementById('customValue' + i).value) || 0;
+                if (label && value !== 0) {
+                    customTotal += value;
+                    if (value < 0) {
+                        customHtml += '<div class="price-row discount"><span>' + label + '</span><span>' + value + ' บาท</span></div>';
+                    } else {
+                        customHtml += '<div class="price-row"><span>' + label + '</span><span>+' + value + ' บาท</span></div>';
+                    }
+                }
+            }
+            
+            const rentalTotal = subtotal - discount + shipping + customTotal;
+            const grandTotal = rentalTotal + depositTotal;
+            
+            document.getElementById('priceSummary').innerHTML = 
+                itemsHtml + 
+                discountHtml + 
+                '<div class="price-row"><span>ค่าส่ง</span><span>' + (shipping === 0 ? 'ฟรี' : shipping + ' บาท') + '</span></div>' +
+                customHtml +
+                '<div class="price-row subtotal"><span>รวมค่าเช่า</span><span>' + rentalTotal + ' บาท</span></div>' +
+                '<div class="price-row deposit"><span>ค่ามัดจำ</span><span>' + depositTotal + ' บาท</span></div>' +
+                '<div class="price-row total"><span>ยอดโอนทั้งหมด</span><span>' + grandTotal + ' บาท</span></div>';
+        }
+
+        // ==================== ORDER DATA ====================
+        function getOrderData() {
+            const count = selectedDresses.length;
+            const isOldCustomer = document.getElementById('oldCustomer').checked;
+            
+            let subtotal = 0;
+            let depositTotal = 0;
+            
+            selectedDresses.forEach(code => {
+                const dress = dressData.find(d => d.code === code);
+                if (!dress) return;
+                const price = selectedDays === 1 ? dress.price1 : selectedDays === 3 ? dress.price3 : dress.price5;
+                subtotal += price;
+                depositTotal += dress.price3;
+            });
+            
+            let discount = 0;
+            if (count >= 3) discount += Math.round(subtotal * 0.10);
+            if (isOldCustomer) discount += Math.round(subtotal * 0.05);
+            
+            const shipping = count >= 2 ? 0 : 35;
+            
+            // รายการที่แอดมินเพิ่มเอง
+            let customItems = [];
+            let customTotal = 0;
+            for (let i = 1; i <= 5; i++) {
+                const label = document.getElementById('customLabel' + i).value.trim();
+                const value = parseFloat(document.getElementById('customValue' + i).value) || 0;
+                if (label && value !== 0) {
+                    customItems.push({ label: label, value: value });
+                    customTotal += value;
+                }
+            }
+            
+            const rentalTotal = subtotal - discount + shipping + customTotal;
+            const grandTotal = rentalTotal + depositTotal;
+            
+            return {
+                dresses: selectedDresses.map(code => dressData.find(d => d.code === code)).filter(d => d),
+                days: selectedDays,
+                name: document.getElementById('customerName').value,
+                phone: document.getElementById('customerPhone').value,
+                line: document.getElementById('customerLine').value,
+                address: document.getElementById('customerAddress').value,
+                startDate: document.getElementById('startDate').value,
+                pickupDate: document.getElementById('pickupDate').value,
+                endDate: document.getElementById('endDate').value,
+                returnDate: document.getElementById('returnDate').value,
+                subtotal: subtotal,
+                discount: discount,
+                shipping: shipping,
+                customItems: customItems,
+                customTotal: customTotal,
+                rentalTotal: rentalTotal,
+                depositTotal: depositTotal,
+                grandTotal: grandTotal,
+                isOldCustomer: isOldCustomer
+            };
+        }
+
+        // ==================== SAVE ORDER ====================
+        async function saveOrder() {
+            const name = document.getElementById('customerName').value.trim();
+            const phone = document.getElementById('customerPhone').value.trim();
+            
+            if (selectedDresses.length === 0) {
+                alert('กรุณาเลือกชุด');
+                return;
+            }
+            if (!name) {
+                alert('กรุณากรอกชื่อลูกค้า');
+                return;
+            }
+            if (!phone) {
+                alert('กรุณากรอกเบอร์โทร');
+                return;
+            }
+            if (!document.getElementById('startDate').value) {
+                alert('กรุณากรอกวันที่เริ่มใช้ชุด');
+                return;
+            }
+            if (!document.getElementById('pickupDate').value) {
+                alert('กรุณากรอกวันที่ส่งชุด');
+                return;
+            }
+            if (!document.getElementById('returnDate').value) {
+                alert('กรุณากรอกวันที่ลูกค้าส่งคืน');
+                return;
+            }
+            
+            showNotification('กำลังบันทึก...');
+            
+            try {
+                const data = getOrderData();
+                const params = new URLSearchParams({
+                    action: 'book',
+                    dressCodes: selectedDresses.join(','),
+                    startDate: document.getElementById('startDate').value,
+                    pickupDate: document.getElementById('pickupDate').value,
+                    endDate: document.getElementById('endDate').value,
+                    returnDate: document.getElementById('returnDate').value,
+                    days: selectedDays,
+                    customerName: name,
+                    phone: phone,
+                    lineId: document.getElementById('customerLine').value,
+                    address: document.getElementById('customerAddress').value,
+                    isOldCustomer: document.getElementById('oldCustomer').checked,
+                    customItems: JSON.stringify(data.customItems),
+                    total: data.grandTotal
+                });
+                
+                const response = await fetch(API_URL + '?' + params);
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('✅ บันทึกออเดอร์สำเร็จ!');
+                    loadOrders();
+                    // Clear form
+                    selectedDresses = [];
+                    document.getElementById('customerName').value = '';
+                    document.getElementById('customerPhone').value = '';
+                    document.getElementById('customerLine').value = '';
+                    document.getElementById('customerAddress').value = '';
+                    document.getElementById('startDate').value = '';
+                    document.getElementById('pickupDate').value = '';
+                    document.getElementById('endDate').value = '';
+                    document.getElementById('returnDate').value = '';
+                    document.getElementById('oldCustomer').checked = false;
+                    // Clear custom inputs
+                    for (let i = 1; i <= 5; i++) {
+                        document.getElementById('customLabel' + i).value = '';
+                        document.getElementById('customValue' + i).value = '';
+                    }
+                    updateUI();
+                } else {
+                    alert('เกิดข้อผิดพลาด: ' + result.error);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('ไม่สามารถเชื่อมต่อได้');
+            }
+        }
+
+        // ==================== GENERATE SUMMARY ====================
+        function generateSummary() {
+            if (selectedDresses.length === 0) {
+                alert('กรุณาเลือกชุด');
+                return;
+            }
+            
+            const data = getOrderData();
+            let dressLines = '';
+            
+            data.dresses.forEach(d => {
+                const price = selectedDays === 1 ? d.price1 : selectedDays === 3 ? d.price3 : d.price5;
+                dressLines += '   - ' + d.code + ' - ' + d.name + ' (' + selectedDays + ' วัน) = ' + price + ' บาท\n';
+            });
+            
+            // Custom items
+            let customLines = '';
+            data.customItems.forEach(item => {
+                customLines += '   ' + item.label + ' = ' + item.value + ' บาท\n';
+            });
+            
+            const summary = 'Rental For You\n================\n\n' +
+                'ข้อมูลลูกค้า\n' +
+                '   ชื่อ: ' + (data.name || '-') + '\n' +
+                '   เบอร์: ' + (data.phone || '-') + '\n' +
+                '   Line: ' + (data.line || '-') + '\n\n' +
+                'ที่อยู่จัดส่ง\n' + (data.address || '-') + '\n\n' +
+                'รายการเช่า\n' + dressLines +
+                '   ค่าส่ง = ' + (data.shipping === 0 ? 'ฟรี!' : data.shipping + ' บาท') + '\n' +
+                (customLines ? '\nรายการเพิ่มเติม\n' + customLines : '') +
+                '\n================\n' +
+                'รวมค่าเช่า = ' + data.rentalTotal + ' บาท\n' +
+                'ค่ามัดจำ = ' + data.depositTotal + ' บาท\n' +
+                '================\n' +
+                'ยอดโอนทั้งหมด = ' + data.grandTotal + ' บาท\n' +
+                '================\n\n' +
+                'กำหนดการ\n' +
+                '   ส่งชุด: ' + formatThaiDate(data.pickupDate) + '\n' +
+                '   วันใช้งาน: ' + formatThaiDate(data.startDate) + ' - ' + formatThaiDate(data.endDate) + '\n' +
+                '   ส่งคืน: ' + formatThaiDate(data.returnDate) + '\n\n' +
+                'ขอบคุณที่ใช้บริการค่ะ 💖';
+            
+            document.getElementById('orderSummaryBox').style.display = 'block';
+            document.getElementById('orderSummaryBox').textContent = summary;
+        }
+
+        function copySummary() {
+            const text = document.getElementById('orderSummaryBox').textContent;
+            if (!text) {
+                alert('กรุณากดสร้างสรุปก่อน');
+                return;
+            }
+            copyToClipboard(text);
+        }
+
+        // ==================== PRINT LABEL (ปรับปรุงใหม่) ====================
+        function printLabelLandscape() {
+            if (selectedDresses.length === 0) {
+                alert('กรุณาเลือกชุด');
+                return;
+            }
+            
+            const data = getOrderData();
+            const shopName = document.getElementById('shopName').value || 'Rental For You';
+            const shopPhone = document.getElementById('shopPhone').value || '-';
+            const shopAddress = document.getElementById('shopAddress').value || '-';
+            
+            const labelHtml = `
+                <div class="print-page-landscape">
+                    <!-- ครึ่งซ้าย: ส่งชุดไปหาลูกค้า -->
+                    <div class="label-half">
+                        <div class="label-header">
+                            <span class="label-type-badge send">📦 ส่งชุดไปหาลูกค้า</span>
+                        </div>
+                        
+                        <div class="label-body" style="flex:1;display:flex;flex-direction:column">
+                            <!-- ผู้ส่ง - ผู้รับ -->
+                            <div class="main-address-section">
+                                <div class="address-big-box sender">
+                                    <div class="address-label">📤 ผู้ส่ง</div>
+                                    <div class="address-name">${shopName}</div>
+                                    <div class="address-phone">โทร ${shopPhone}</div>
+                                    <div class="address-detail">${shopAddress}</div>
+                                </div>
+                                <div class="address-big-box receiver">
+                                    <div class="address-label">📥 ผู้รับ</div>
+                                    <div class="address-name">${data.name || '-'}</div>
+                                    <div class="address-phone">โทร ${data.phone || '-'}</div>
+                                    <div class="address-detail">${data.address || '-'}</div>
+                                </div>
+                            </div>
+                            
+                            <!-- ข้อมูลออเดอร์ -->
+                            <div class="label-info-section">
+                                <div class="label-info-row">
+                                    <strong>🎀 ชุด:</strong>
+                                    <span>${selectedDresses.join(', ')}</span>
+                                </div>
+                                <div class="label-info-row">
+                                    <strong>📅 วันใช้งาน:</strong>
+                                    <span>${formatThaiDate(data.startDate)} - ${formatThaiDate(data.endDate)}</span>
+                                </div>
+                                <div class="label-info-row highlight">
+                                    <strong>⚠️ ส่งคืนภายใน:</strong>
+                                    <span>${formatThaiDate(data.returnDate)}</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Brand -->
+                            <div class="brand-footer">
+                                <div class="brand-logo">Rental <span>For You</span></div>
+                                <div class="brand-contact">IG: rental_foru | Line: @897pymlg</div>
+                            </div>
+                        </div>
+                        
+                        <div class="cut-indicator">✂ - - - ตัดตรงนี้ - - - ✂</div>
+                    </div>
+                    
+                    <!-- ครึ่งขวา: ส่งคืนร้าน -->
+                    <div class="label-half return">
+                        <div class="label-header return">
+                            <span class="label-type-badge return">📮 ส่งคืนร้าน (แปะกล่องส่งกลับ)</span>
+                        </div>
+                        
+                        <div class="label-body" style="flex:1;display:flex;flex-direction:column">
+                            <!-- ผู้ส่ง (ลูกค้า) - ผู้รับ (ร้าน) -->
+                            <div class="main-address-section">
+                                <div class="address-big-box sender">
+                                    <div class="address-label">📤 ผู้ส่ง (ลูกค้า)</div>
+                                    <div class="address-name">${data.name || '-'}</div>
+                                    <div class="address-phone">โทร ${data.phone || '-'}</div>
+                                    <div class="address-detail">${data.address || '-'}</div>
+                                </div>
+                                <div class="address-big-box receiver return-receiver">
+                                    <div class="address-label">📥 ผู้รับ (ร้าน)</div>
+                                    <div class="address-name">${shopName}</div>
+                                    <div class="address-phone">โทร ${shopPhone}</div>
+                                    <div class="address-detail">${shopAddress}</div>
+                                </div>
+                            </div>
+                            
+                            <!-- ข้อมูลออเดอร์ -->
+                            <div class="label-info-section">
+                                <div class="label-info-row">
+                                    <strong>🎀 ชุด:</strong>
+                                    <span>${selectedDresses.join(', ')}</span>
+                                </div>
+                                <div class="label-info-row">
+                                    <strong>👤 จาก:</strong>
+                                    <span>${data.name || '-'}</span>
+                                </div>
+                                <div class="label-info-row danger">
+                                    <strong>⚠️ กรุณาส่งคืนภายใน:</strong>
+                                    <span>${formatThaiDate(data.returnDate)}</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Brand -->
+                            <div class="brand-footer">
+                                <div class="brand-logo">Rental <span>For You</span></div>
+                                <div class="brand-contact">IG: rental_foru | Line: @897pymlg</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('printArea').innerHTML = labelHtml;
+            window.print();
+        }
+
+        // ==================== LOAD ORDERS ====================
+        async function loadOrders() {
+            try {
+                const response = await fetch(API_URL + '?action=getOrders');
+                const result = await response.json();
+                if (result.success) {
+                    allOrdersData = result.orders || [];
+                    renderDashboard();
+                    renderAllOrders();
+                    renderShippingSchedule();
+                }
+            } catch (error) {
+                console.error('Error loading orders:', error);
+            }
+        }
+
+        function refreshData() {
+            loadOrders();
+            loadCalendarBlocks();
+            showNotification('รีเฟรชข้อมูลแล้ว');
+        }
+
+        // ==================== DASHBOARD ====================
+        function renderDashboard() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const twoDaysLater = new Date(today);
+            twoDaysLater.setDate(twoDaysLater.getDate() + 2);
+            
+            let pending = 0, confirmed = 0, shipped = 0, returnSoon = 0;
+            let todayShipHtml = '', returnAlertHtml = '';
+            
+            allOrdersData.forEach(order => {
+                if (order.status === 'รอชำระ') pending++;
+                else if (order.status === 'ยืนยันแล้ว') confirmed++;
+                else if (order.status === 'ส่งชุดแล้ว') shipped++;
+                
+                const pickupDate = new Date(order.pickupDate);
+                if (pickupDate.getTime() === today.getTime() && order.status === 'ยืนยันแล้ว') {
+                    todayShipHtml += '<div class="alert warning">' + (order.code || order.dressCode) + ' - ' + order.customerName + ' (' + order.phone + ')</div>';
+                }
+                
+                const returnDate = new Date(order.returnDate);
+                if (order.status === 'ส่งชุดแล้ว' && returnDate <= twoDaysLater && returnDate >= today) {
+                    returnSoon++;
+                    const daysLeft = Math.ceil((returnDate - today) / (1000 * 60 * 60 * 24));
+                    returnAlertHtml += '<div class="alert ' + (daysLeft === 0 ? 'danger' : 'warning') + '">' + 
+                        (order.code || order.dressCode) + ' - ' + order.customerName + 
+                        ' ต้องส่งคืน' + (daysLeft === 0 ? 'วันนี้!' : 'อีก ' + daysLeft + ' วัน') + '</div>';
+                }
+            });
+            
+            document.getElementById('statPending').textContent = pending;
+            document.getElementById('statConfirmed').textContent = confirmed;
+            document.getElementById('statShipped').textContent = shipped;
+            document.getElementById('statReturn').textContent = returnSoon;
+            document.getElementById('todayShipments').innerHTML = todayShipHtml || '<div class="alert success">ไม่มีชุดที่ต้องส่งวันนี้</div>';
+            document.getElementById('returnAlerts').innerHTML = returnAlertHtml || '<div class="alert success">ไม่มีชุดที่ใกล้ถึงวันส่งคืน</div>';
+            
+            const recent = allOrdersData.slice(0, 5);
+            document.getElementById('recentOrders').innerHTML = recent.length ? 
+                recent.map(o => '<tr><td>' + (o.id || '-') + '</td><td>' + o.customerName + '</td><td>' + o.dressCode + '</td><td>' + formatThaiDate(o.startDate) + ' - ' + formatThaiDate(o.endDate) + '</td><td>' + (o.total || '-') + '</td><td><span class="status-badge status-' + getStatusClass(o.status) + '">' + o.status + '</span></td></tr>').join('') : 
+                '<tr><td colspan="6" style="text-align:center">ยังไม่มีออเดอร์</td></tr>';
+        }
+
+        // ==================== ALL ORDERS ====================
+        function renderAllOrders() {
+            const tbody = document.getElementById('allOrders');
+            tbody.innerHTML = allOrdersData.length ? 
+                allOrdersData.map(o => '<tr><td>' + (o.id || '-') + '</td><td>' + o.customerName + '<br><small>' + o.phone + '</small></td><td>' + o.dressCode + '</td><td>' + formatThaiDate(o.pickupDate) + '</td><td>' + formatThaiDate(o.startDate) + '</td><td>' + formatThaiDate(o.returnDate) + '</td><td>' + (o.total || '-') + '</td><td><span class="status-badge status-' + getStatusClass(o.status) + '">' + o.status + '</span></td><td><button class="action-btn edit" onclick="updateStatus(\'' + o.id + '\')">สถานะ</button></td></tr>').join('') : 
+                '<tr><td colspan="9" style="text-align:center">ยังไม่มีออเดอร์</td></tr>';
+        }
+
+        function filterOrders() {
+            const status = document.getElementById('filterStatus').value;
+            const search = document.getElementById('searchOrder').value.toLowerCase();
+            
+            let filtered = allOrdersData.filter(o => {
+                if (status && o.status !== status) return false;
+                if (search) {
+                    const searchStr = (o.customerName + ' ' + o.phone + ' ' + o.dressCode).toLowerCase();
+                    if (searchStr.indexOf(search) === -1) return false;
+                }
+                return true;
+            });
+            
+            const tbody = document.getElementById('allOrders');
+            tbody.innerHTML = filtered.length ? 
+                filtered.map(o => '<tr><td>' + (o.id || '-') + '</td><td>' + o.customerName + '<br><small>' + o.phone + '</small></td><td>' + o.dressCode + '</td><td>' + formatThaiDate(o.pickupDate) + '</td><td>' + formatThaiDate(o.startDate) + '</td><td>' + formatThaiDate(o.returnDate) + '</td><td>' + (o.total || '-') + '</td><td><span class="status-badge status-' + getStatusClass(o.status) + '">' + o.status + '</span></td><td><button class="action-btn edit" onclick="updateStatus(\'' + o.id + '\')">สถานะ</button></td></tr>').join('') : 
+                '<tr><td colspan="9" style="text-align:center">ไม่พบออเดอร์</td></tr>';
+        }
+
+        async function updateStatus(orderId) {
+            const newStatus = prompt('เลือกสถานะใหม่:\n1 = รอชำระ\n2 = ยืนยันแล้ว\n3 = ส่งชุดแล้ว\n4 = คืนชุดแล้ว\n5 = ยกเลิก');
+            const statusMap = {'1':'รอชำระ','2':'ยืนยันแล้ว','3':'ส่งชุดแล้ว','4':'คืนชุดแล้ว','5':'ยกเลิก'};
+            
+            if (newStatus && statusMap[newStatus]) {
+                try {
+                    const response = await fetch(API_URL + '?action=updateStatus&orderId=' + orderId + '&status=' + statusMap[newStatus]);
+                    const result = await response.json();
+                    if (result.success) {
+                        showNotification('อัพเดทสถานะเรียบร้อย');
+                        loadOrders();
+                    }
+                } catch (e) {
+                    alert('เกิดข้อผิดพลาด');
+                }
+            }
+        }
+
+        // ==================== SHIPPING SCHEDULE ====================
+        function renderShippingSchedule() {
+            const today = new Date();
+            let shipHtml = '', returnHtml = '';
+            
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(today);
+                date.setDate(date.getDate() + i);
+                const dateStr = formatDateInput(date);
+                
+                const shipOrders = allOrdersData.filter(o => o.pickupDate === dateStr && o.status === 'ยืนยันแล้ว');
+                const returnOrders = allOrdersData.filter(o => o.returnDate === dateStr && o.status === 'ส่งชุดแล้ว');
+                
+                const dayLabel = i === 0 ? ' (วันนี้)' : i === 1 ? ' (พรุ่งนี้)' : '';
+                
+                shipHtml += '<div style="margin-bottom:15px;padding:15px;background:' + (shipOrders.length ? '#FFF3E0' : 'var(--cream)') + ';border-radius:10px">' +
+                    '<strong>' + formatThaiDate(dateStr) + dayLabel + '</strong>' +
+                    (shipOrders.length ? shipOrders.map(o => '<div style="margin-top:8px">📦 ' + o.dressCode + ' → ' + o.customerName + ' (' + o.phone + ')</div>').join('') : '<div style="color:var(--brown-light);margin-top:5px">ไม่มี</div>') +
+                    '</div>';
+                
+                returnHtml += '<div style="margin-bottom:15px;padding:15px;background:' + (returnOrders.length ? '#FFEBEE' : 'var(--cream)') + ';border-radius:10px">' +
+                    '<strong>' + formatThaiDate(dateStr) + dayLabel + '</strong>' +
+                    (returnOrders.length ? returnOrders.map(o => '<div style="margin-top:8px">📥 ' + o.dressCode + ' ← ' + o.customerName + ' (' + o.phone + ')</div>').join('') : '<div style="color:var(--brown-light);margin-top:5px">ไม่มี</div>') +
+                    '</div>';
+            }
+            
+            document.getElementById('shippingSchedule').innerHTML = shipHtml;
+            document.getElementById('returnSchedule').innerHTML = returnHtml;
+        }
+
+        // ==================== CALENDAR BLOCKS ====================
+        async function loadCalendarBlocks() {
+            try {
+                const response = await fetch(API_URL + '?action=getCalendarBlocks');
+                const result = await response.json();
+                if (result.success) {
+                    allBlocks = result.blocks || [];
+                    renderCalendarBlocks();
+                }
+            } catch (error) {
+                console.error('Error loading blocks:', error);
+                document.getElementById('calendarBlocksList').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--red)">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
+            }
+        }
+
+        function renderCalendarBlocks() {
+            const tbody = document.getElementById('calendarBlocksList');
+            if (!allBlocks || allBlocks.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--brown-light)">ยังไม่มีการบล็อกปฏิทิน</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = allBlocks.map(b => {
+                const start = new Date(b.startDate);
+                const end = new Date(b.endDate);
+                const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+                
+                return '<tr>' +
+                    '<td><strong>' + b.id + '</strong></td>' +
+                    '<td><strong style="color:var(--gold)">' + b.dressCode + '</strong></td>' +
+                    '<td>' + formatThaiDate(b.startDate) + '</td>' +
+                    '<td>' + formatThaiDate(b.endDate) + '</td>' +
+                    '<td>' + days + ' วัน</td>' +
+                    '<td><span class="status-badge ' + getBlockTypeClass(b.type) + '">' + b.type + '</span></td>' +
+                    '<td><button class="action-btn edit" style="background:var(--red)" onclick="deleteBlock(\'' + b.id + '\')">ลบ</button></td>' +
+                '</tr>';
+            }).join('');
+        }
+
+        function getBlockTypeClass(type) {
+            if (type === 'ออเดอร์') return 'status-confirmed';
+            if (type === 'ซ่อมชุด') return 'status-cancelled';
+            if (type === 'ซักแห้ง') return 'status-pending';
+            if (type === 'จองส่วนตัว') return 'status-shipped';
+            return 'status-pending';
+        }
+
+        async function addNewBlock() {
+            const dressCode = document.getElementById('blockDressCode').value;
+            const startDate = document.getElementById('blockStartDate').value;
+            const endDate = document.getElementById('blockEndDate').value;
+            const type = document.getElementById('blockType').value;
+            
+            if (!dressCode) {
+                alert('กรุณาเลือกชุด');
+                return;
+            }
+            if (!startDate || !endDate) {
+                alert('กรุณาเลือกวันที่เริ่มต้นและสิ้นสุด');
+                return;
+            }
+            if (new Date(endDate) < new Date(startDate)) {
+                alert('วันสิ้นสุดต้องมากกว่าหรือเท่ากับวันเริ่มต้น');
+                return;
+            }
+            
+            showNotification('กำลังเพิ่มการบล็อก...');
+            
+            try {
+                const params = new URLSearchParams({
+                    action: 'addCalendarBlock',
+                    dressCode: dressCode,
+                    startDate: startDate,
+                    endDate: endDate,
+                    type: type
+                });
+                
+                const response = await fetch(API_URL + '?' + params);
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('✅ เพิ่มการบล็อกสำเร็จ!');
+                    document.getElementById('blockStartDate').value = '';
+                    document.getElementById('blockEndDate').value = '';
+                    document.getElementById('blockDressCode').selectedIndex = 0;
+                    loadCalendarBlocks();
+                } else {
+                    alert('เกิดข้อผิดพลาด: ' + result.error);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('ไม่สามารถเชื่อมต่อได้');
+            }
+        }
+
+        async function deleteBlock(blockId) {
+            const block = allBlocks.find(b => b.id === blockId);
+            const confirmMsg = 'ต้องการลบการบล็อกนี้หรือไม่?\n\n' +
+                'รหัสชุด: ' + (block ? block.dressCode : '') + '\n' +
+                'ประเภท: ' + (block ? block.type : '') + '\n' +
+                'วันที่: ' + (block ? formatThaiDate(block.startDate) + ' - ' + formatThaiDate(block.endDate) : '');
+            
+            if (!confirm(confirmMsg)) return;
+            
+            showNotification('กำลังลบ...');
+            
+            try {
+                const response = await fetch(API_URL + '?action=deleteCalendarBlock&id=' + blockId);
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('✅ ลบการบล็อกสำเร็จ!');
+                    loadCalendarBlocks();
+                } else {
+                    alert('เกิดข้อผิดพลาด: ' + result.error);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('ไม่สามารถเชื่อมต่อได้');
+            }
+        }
+
+        // ==================== SETTINGS ====================
+        function loadShopInfo() {
+            const shopName = localStorage.getItem('shopName');
+            const shopPhone = localStorage.getItem('shopPhone');
+            const shopAddress = localStorage.getItem('shopAddress');
+            if (shopName) document.getElementById('shopName').value = shopName;
+            if (shopPhone) document.getElementById('shopPhone').value = shopPhone;
+            if (shopAddress) document.getElementById('shopAddress').value = shopAddress;
+        }
+
+        function saveShopInfo() {
+            localStorage.setItem('shopName', document.getElementById('shopName').value);
+            localStorage.setItem('shopPhone', document.getElementById('shopPhone').value);
+            localStorage.setItem('shopAddress', document.getElementById('shopAddress').value);
+            showNotification('บันทึกข้อมูลร้านเรียบร้อย');
+        }
+
+        // ==================== UTILITIES ====================
+        function formatDateInput(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        function formatThaiDate(dateStr) {
+            if (!dateStr) return '-';
+            const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+            const date = new Date(dateStr);
+            return date.getDate() + ' ' + months[date.getMonth()] + ' ' + (date.getFullYear() + 543);
+        }
+
+        function getStatusClass(status) {
+            const map = {'รอชำระ':'pending','ยืนยันแล้ว':'confirmed','ส่งชุดแล้ว':'shipped','คืนชุดแล้ว':'returned','ยกเลิก':'cancelled'};
+            return map[status] || 'pending';
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                showNotification('Copy สำเร็จ!');
+            });
+        }
+
+        function showNotification(msg) {
+            const el = document.getElementById('copyNotification');
+            el.textContent = msg;
+            el.style.display = 'block';
+            setTimeout(function() {
+                el.style.display = 'none';
+            }, 2000);
+        }
+
+        // ==================== INITIALIZE ====================
+        initAdmin();
+    </script>
+</body>
+</html>
