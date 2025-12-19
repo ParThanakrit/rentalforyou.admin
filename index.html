@@ -28,7 +28,7 @@
             </div>
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title">📋 รายการออเดอร์ทั้งหมด</div>
+                    <div class="card-title">📋 รายการออเดอร์ทั้งหมด</div><button class="btn btn-primary btn-sm" onclick="openAddModal()" style="margin-left:15px">➕ เพิ่มออเดอร์</button>
                     <div class="filter-bar" style="margin-bottom:0">
                         <input type="text" class="form-input" id="orderSearch" placeholder="🔍 ค้นหา..." onkeyup="filterOrders()">
                         <select class="form-select" id="orderStatusFilter" onchange="filterOrders()"><option value="">ทุกสถานะ</option><option value="รอชำระ">รอชำระ</option><option value="ยืนยันแล้ว">ยืนยันแล้ว</option><option value="จัดส่งแล้ว">จัดส่งแล้ว</option><option value="คืนชุดแล้ว">คืนชุดแล้ว</option><option value="ยกเลิก">ยกเลิก</option></select>
@@ -95,9 +95,74 @@
         </div>
     </div>
     <div class="modal-overlay" id="orderModal"><div class="modal-content"><div class="modal-header"><h3>📋 ออเดอร์ <span id="modalOrderId" class="order-id"></span></h3><button class="close-btn" onclick="closeModal()">×</button></div><div class="modal-body" id="modalBody"></div></div></div>
+    <div class="modal-overlay" id="addOrderModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>📝 สร้างออเดอร์ใหม่</h3>
+            <button class="close-btn" onclick="closeAddModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-section">
+                <div class="modal-section-title">👤 ข้อมูลลูกค้า</div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">ชื่อลูกค้า</label><input type="text" id="addName" class="form-input"></div>
+                    <div class="form-group"><label class="form-label">เบอร์โทร</label><input type="text" id="addPhone" class="form-input"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Line ID</label><input type="text" id="addLine" class="form-input"></div>
+                    <div class="form-group"><label class="form-label">ที่อยู่</label><input type="text" id="addAddress" class="form-input"></div>
+                </div>
+            </div>
+
+            <div class="modal-section">
+                <div class="modal-section-title">👗 ข้อมูลการเช่า</div>
+                <div class="form-group"><label class="form-label">รหัสชุด (คั่นด้วย , ถ้ามีหลายชุด)</label>
+                    <input type="text" id="addDressCode" class="form-input" placeholder="เช่น D001, D002">
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">วันเริ่มใช้งาน</label><input type="date" id="addStartDate" class="form-input" onchange="calcDates()"></div>
+                    <div class="form-group"><label class="form-label">จำนวนวัน</label>
+                        <select id="addDays" class="form-select" onchange="calcDates()">
+                            <option value="3">3 วัน</option>
+                            <option value="5">5 วัน</option>
+                            <option value="1">1 วัน</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">รับชุด (Pickup)</label><input type="date" id="addPickup" class="form-input"></div>
+                    <div class="form-group"><label class="form-label">คืนชุด (Return)</label><input type="date" id="addReturn" class="form-input"></div>
+                </div>
+            </div>
+
+            <div class="modal-section">
+                <div class="modal-section-title">💰 สรุปยอดเงิน</div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">ค่าเช่า</label><input type="number" id="addRental" class="form-input" value="0" oninput="calcTotal()"></div>
+                    <div class="form-group"><label class="form-label">ส่วนลด</label><input type="number" id="addDiscount" class="form-input" value="0" oninput="calcTotal()"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">ค่าส่ง</label><input type="number" id="addShipping" class="form-input" value="0" oninput="calcTotal()"></div>
+                    <div class="form-group"><label class="form-label">มัดจำ</label><input type="number" id="addDeposit" class="form-input" value="0" oninput="calcTotal()"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">ยอดรวมสุทธิ</label>
+                    <input type="number" id="addTotal" class="form-input" style="font-weight:bold; color:var(--accent); font-size:1.2rem" readonly>
+                </div>
+                <div class="form-group">
+                    <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+                        <input type="checkbox" id="addIsOld"> <span>เป็นลูกค้าเก่า?</span>
+                    </label>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" style="width:100%; justify-content:center" onclick="saveOrder()">💾 บันทึกออเดอร์</button>
+        </div>
+    </div>
+</div>
     <div class="toast-container" id="toastContainer"></div>
     <script>
-        const API='https://script.google.com/macros/s/AKfycbzpi3AUgVDIgSdm2SHYhqbdI819Xq9DWkFAfvXLe3c8U-H-tyH-ZDSp19nMu6D-hCxy/exec';
+        const API='https://script.google.com/macros/s/AKfycbxHFv0nr7zEYwiLfFRzJ-GlgWXxP353MdGXvAzqsma29aCXcmFU9zUUanNjYsSqv-NaLA/exec';
         const PROMO_KEY='rental_promo_settings';
         let dresses=[],blocks=[],orders=[];
         let globalMonth=new Date().getMonth(),globalYear=new Date().getFullYear();
@@ -169,6 +234,137 @@
         function showToast(message,type){const c=document.getElementById('toastContainer');const t=document.createElement('div');t.className='toast '+type;t.innerHTML='<span>'+(type==='success'?'✅':type==='error'?'❌':'ℹ️')+'</span><span>'+message+'</span>';c.appendChild(t);setTimeout(()=>{t.style.animation='slideIn .3s reverse';setTimeout(()=>t.remove(),300)},3000)}
         document.getElementById('orderModal').addEventListener('click',function(e){if(e.target===this)closeModal()});
         init();
+    
+    // ==========================================
+// ส่วนสำหรับ "เพิ่มออเดอร์" (วางต่อท้ายสุด)
+// ==========================================
+
+function openAddModal() {
+    document.getElementById('addOrderModal').classList.add('active');
+    // ตั้งค่าวันเริ่มต้นเป็นวันนี้
+    document.getElementById('addStartDate').valueAsDate = new Date();
+    // คำนวณวันคืนของโดยอัตโนมัติ
+    calcDates();
+}
+
+function closeAddModal() {
+    document.getElementById('addOrderModal').classList.remove('active');
+}
+
+function calcDates() {
+    // ดึงค่าวันที่เริ่ม และ จำนวนวัน
+    const startVal = document.getElementById('addStartDate').value;
+    const days = parseInt(document.getElementById('addDays').value);
+    
+    if (startVal) {
+        const startDate = new Date(startVal);
+        
+        // คำนวณวันรับชุด (Pickup) = ก่อนวันเริ่ม 2 วัน
+        const pickup = new Date(startDate);
+        pickup.setDate(startDate.getDate() - 2);
+        document.getElementById('addPickup').value = formatDateForInput(pickup);
+
+        // คำนวณวันคืนชุด (Return) = วันเริ่ม + จำนวนวัน
+        const returnDate = new Date(startDate);
+        returnDate.setDate(startDate.getDate() + days); 
+        document.getElementById('addReturn').value = formatDateForInput(returnDate);
+    }
+}
+
+// ฟังก์ชันช่วยแปลงวันที่ให้ลงในช่อง input ได้ถูกต้อง (YYYY-MM-DD)
+function formatDateForInput(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function calcTotal() {
+    // ดึงตัวเลขจากช่องต่างๆ มาบวกลบกัน
+    const rental = parseFloat(document.getElementById('addRental').value) || 0;
+    const discount = parseFloat(document.getElementById('addDiscount').value) || 0;
+    const shipping = parseFloat(document.getElementById('addShipping').value) || 0;
+    const deposit = parseFloat(document.getElementById('addDeposit').value) || 0;
+    
+    // ยอดรวม = (ค่าเช่า - ส่วนลด) + ค่าส่ง + มัดจำ
+    document.getElementById('addTotal').value = (rental - discount) + shipping + deposit;
+}
+
+async function saveOrder() {
+    const btn = event.target;
+    // เปลี่ยนข้อความปุ่มเพื่อบอกว่ากำลังทำงาน
+    btn.innerHTML = '⏳ กำลังบันทึก...';
+    btn.disabled = true;
+
+    // รวบรวมข้อมูลจากฟอร์ม
+    const data = {
+        action: 'addOrder',
+        customerName: document.getElementById('addName').value,
+        phone: document.getElementById('addPhone').value,
+        lineId: document.getElementById('addLine').value,
+        address: document.getElementById('addAddress').value,
+        dressCode: document.getElementById('addDressCode').value,
+        startDate: document.getElementById('addStartDate').value,
+        days: document.getElementById('addDays').value,
+        pickupDate: document.getElementById('addPickup').value,
+        returnDate: document.getElementById('addReturn').value,
+        endDate: document.getElementById('addReturn').value, 
+        rentalPrice: document.getElementById('addRental').value,
+        discount: document.getElementById('addDiscount').value,
+        shipping: document.getElementById('addShipping').value,
+        deposit: document.getElementById('addDeposit').value,
+        totalPrice: document.getElementById('addTotal').value,
+        isOldCustomer: document.getElementById('addIsOld').checked ? 'ใช่' : 'ไม่ใช่'
+    };
+
+    // ตรวจสอบว่ากรอกข้อมูลครบไหม
+    if (!data.customerName || !data.dressCode) {
+        showToast('กรุณากรอกชื่อและรหัสชุด', 'error');
+        btn.innerHTML = '💾 บันทึกออเดอร์';
+        btn.disabled = false;
+        return;
+    }
+
+    try {
+        // ส่งข้อมูลไปที่ Google Sheet
+        const params = new URLSearchParams();
+        for (const key in data) {
+            params.append(key, data[key]);
+        }
+
+        // ตรงนี้ API คือตัวแปรที่มีอยู่แล้วในโค้ดเดิมของคุณ
+        const res = await fetch(API + '?' + params.toString());
+        const json = await res.json();
+
+        if (json.success) {
+            showToast('บันทึกสำเร็จ! ' + json.id, 'success');
+            closeAddModal();
+            
+            // เคลียร์ค่าในฟอร์มให้ว่าง
+            document.getElementById('addName').value = '';
+            document.getElementById('addPhone').value = '';
+            document.getElementById('addDressCode').value = '';
+            
+            // รีโหลดหน้าใหม่เพื่อให้ข้อมูลขึ้น
+            // (ใช้ฟังก์ชัน refreshAll() ที่มีอยู่แล้วในโค้ดเดิมของคุณ)
+            if(typeof refreshAll === 'function') {
+                refreshAll();
+            } else {
+                location.reload();
+            }
+        } else {
+            showToast('ผิดพลาด: ' + JSON.stringify(json), 'error');
+        }
+    } catch (e) {
+        showToast('เชื่อมต่อไม่ได้', 'error');
+        console.error(e);
+    }
+    
+    // คืนค่าปุ่มกลับเป็นเหมือนเดิม
+    btn.innerHTML = '💾 บันทึกออเดอร์';
+    btn.disabled = false;
+}
+    
     </script>
 </body>
 </html>
