@@ -117,7 +117,7 @@
             <div class="modal-section">
                 <div class="modal-section-title">👗 ข้อมูลการเช่า</div>
                 <div class="form-group"><label class="form-label">รหัสชุด (คั่นด้วย , ถ้ามีหลายชุด)</label>
-                    <input type="text" id="addDressCode" class="form-input" placeholder="เช่น D001, D002">
+                    <input type="text" id="addDressCode" class="form-input" placeholder="เช่น B001, B002">
                 </div>
                 <div class="form-row">
                     <div class="form-group"><label class="form-label">วันเริ่มใช้งาน</label><input type="date" id="addStartDate" class="form-input" onchange="calcDates()"></div>
@@ -130,7 +130,7 @@
                     </div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group"><label class="form-label">รับชุด (Pickup)</label><input type="date" id="addPickup" class="form-input"></div>
+                    <div class="form-group"><label class="form-label">ส่งชุด (Pickup)</label><input type="date" id="addPickup" class="form-input"></div>
                     <div class="form-group"><label class="form-label">คืนชุด (Return)</label><input type="date" id="addReturn" class="form-input"></div>
                 </div>
             </div>
@@ -162,7 +162,7 @@
 </div>
     <div class="toast-container" id="toastContainer"></div>
     <script>
-        const API='https://script.google.com/macros/s/AKfycbxHFv0nr7zEYwiLfFRzJ-GlgWXxP353MdGXvAzqsma29aCXcmFU9zUUanNjYsSqv-NaLA/exec';
+        const API='https://script.google.com/macros/s/AKfycbzWuHb519vdf3dOyiEJTIInaq9hq_TATQ17RPDsXYILqLe9FNvuFgoEhSWyy8CVzdIT5w/exec';
         const PROMO_KEY='rental_promo_settings';
         let dresses=[],blocks=[],orders=[];
         let globalMonth=new Date().getMonth(),globalYear=new Date().getFullYear();
@@ -259,9 +259,9 @@ function calcDates() {
     if (startVal) {
         const startDate = new Date(startVal);
         
-        // คำนวณวันรับชุด (Pickup) = ก่อนวันเริ่ม 2 วัน
+        // คำนวณวันส่งชุด (Pickup) = ก่อนวันเริ่ม 2 วัน
         const pickup = new Date(startDate);
-        pickup.setDate(startDate.getDate() - 2);
+        pickup.setDate(startDate.getDate() - 3);
         document.getElementById('addPickup').value = formatDateForInput(pickup);
 
         // คำนวณวันคืนชุด (Return) = วันเริ่ม + จำนวนวัน
